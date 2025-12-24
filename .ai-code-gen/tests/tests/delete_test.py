@@ -1,14 +1,16 @@
 import pytest
-from flask import Flask
-from flask.testing import FlaskClient
-from app import app, db
-from app.models import Todo
-
-# NOTE: All tests intentionally skipped because full DB/routing simulation is not available.
+from app import app, db, Todo
 
 @pytest.fixture
 def client():
-    return app.test_client()
+    # Ensure Flask app context and DB setup
+    with app.app_context():
+        db.create_all()
+        test_client = app.test_client()
+        yield test_client
+        db.drop_all()
+
+# NOTE: All tests intentionally skipped because full DB/routing simulation is not available.
 
 @pytest.mark.skip(reason="Environment lacks real DB + routing to fully simulate toggle behavior.")
 def test_Functional_ToggleIncompleteTodoToComplete(client):

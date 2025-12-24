@@ -58,4 +58,4 @@ def test_functional_missing_title_field_handled_gracefully(client):
 def test_functional_special_characters_preserved(client):
     title = "Fix 🚀 engine — urgent!"
     response = client.post("/add", data={"title": title})
-    assert response.status_code in (200, 302)"}
+    assert response.status_code in (200, 302)

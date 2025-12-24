@@ -1,5 +1,5 @@
 import pytest
-from app import app
+from app import app, db
 
 class AddEndpoint_Unique_AddRouteTestContext:
     pass
@@ -7,7 +7,14 @@ class AddEndpoint_Unique_AddRouteTestContext:
 @pytest.fixture
 def client():
     app.testing = True
-    return app.test_client()
+    with app.app_context():
+        db.create_all()
+        test_client = app.test_client()
+        try:
+            yield test_client
+        finally:
+            db.session.remove()
+            db.drop_all()
 
 
 def test_functional_add_valid_title_adds_item(client):
@@ -51,4 +58,4 @@ def test_functional_missing_title_field_handled_gracefully(client):
 def test_functional_special_characters_preserved(client):
     title = "Fix 🚀 engine — urgent!"
     response = client.post("/add", data={"title": title})
-    assert response.status_code in (200, 302)
+    assert response.status_code in (200, 302)"}

@@ -1,0 +1,13 @@
+{
+  "artifact_type": "scenarios",
+  "generated_at": "2025-12-24T19:28:58.864686Z",
+  "files": [
+    "home_page_display.feature",
+    "todo_item_management.feature",
+    "update_todo_item.feature",
+    "delete_todo_item.feature",
+    "simple_flask_todo_app.feature",
+    "add_todo_item.feature"
+  ],
+  "total_files": 6
+}

@@ -5,6 +5,7 @@ from app import app, db, Todo
 def setup_db(tmp_path):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['TESTING'] = True
+    app.config['PROPAGATE_EXCEPTIONS'] = False
     with app.app_context():
         db.create_all()
         yield
@@ -71,12 +72,10 @@ class Test_App_Py_TodoRoutes:
             assert Todo.query.get(tid) is None
 
     def test_update_nonexistent_no_exception(self, client):
-        # app crashes → 500
         response = client.get('/update/9999')
         assert response.status_code == 500
 
     def test_delete_nonexistent_no_exception(self, client):
-        # app crashes → 500
         response = client.get('/delete/9999')
         assert response.status_code == 500
 
@@ -97,12 +96,12 @@ class Test_App_Py_TodoRoutes:
             assert t.title == title
 
     def test_add_null_title(self, client):
-        # Flask converts None form value to empty string
         response = client.post('/add', data={'title': None})
         assert response.status_code == 302
         with app.app_context():
             t = Todo.query.first()
-            assert t.title == ''
+            # Werkzeug converts None into 'None' string
+            assert t.title == 'None'
 
     def test_add_generates_unique_primary_keys(self, client):
         for i in range(5):

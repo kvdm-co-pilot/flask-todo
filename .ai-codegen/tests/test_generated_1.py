@@ -4,11 +4,13 @@ from app import app, db, Todo
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        with app.test_client() as client:
-            yield client
+    ctx = app.app_context()
+    ctx.push()
+    db.drop_all()
+    db.create_all()
+    with app.test_client() as client:
+        yield client
+    ctx.pop()
 
 
 def test_home_loads_successfully_returns_200(client):

@@ -1,11 +1,13 @@
 import pytest
+import importlib
 from unittest.mock import MagicMock, patch
+import app as app_module
 
-# Assuming module structure: from app import add, home, update, delete, Todo, db, app
 
 @pytest.fixture
 def mock_db():
     return MagicMock()
+
 
 @pytest.fixture
 def mock_todo():
@@ -17,67 +19,49 @@ def mock_todo():
 
 
 def test_add_valid_input_creates_record(mock_db, mock_todo):
-    # Arrange
-    with patch('app.db', mock_db), patch('app.Todo', return_value=mock_todo):
-        from app import add
-
-        # Act
-        result = add("Test Task")
-
-        # Assert
+    importlib.reload(app_module)
+    with patch.object(app_module, "db", mock_db), patch.object(app_module, "Todo", return_value=mock_todo):
+        importlib.reload(app_module)
+        result = app_module.add("Test Task")
         mock_db.session.add.assert_called_once_with(mock_todo)
         mock_db.session.commit.assert_called_once()
         assert result is not None
 
 
 def test_add_invalid_input_raises_error(mock_db):
-    # Arrange
-    with patch('app.db', mock_db):
-        from app import add
-
-        # Act / Assert
+    importlib.reload(app_module)
+    with patch.object(app_module, "db", mock_db):
+        importlib.reload(app_module)
         with pytest.raises(Exception):
-            add(None)
+            app_module.add(None)
 
 
 def test_update_existing_item_updates_fields(mock_db, mock_todo):
-    # Arrange
     mock_db.session.query.return_value.filter_by.return_value.first.return_value = mock_todo
-    with patch('app.db', mock_db):
-        from app import update
-
-        # Act
-        update(1, title="Updated", completed=True)
-
-        # Assert
+    importlib.reload(app_module)
+    with patch.object(app_module, "db", mock_db):
+        importlib.reload(app_module)
+        app_module.update(1, title="Updated", completed=True)
         assert mock_todo.title == "Updated"
         assert mock_todo.completed is True
         mock_db.session.commit.assert_called_once()
 
 
 def test_update_nonexistent_item_no_commit(mock_db):
-    # Arrange
     mock_db.session.query.return_value.filter_by.return_value.first.return_value = None
-    with patch('app.db', mock_db):
-        from app import update
-
-        # Act
-        result = update(999, title="X")
-
-        # Assert
+    importlib.reload(app_module)
+    with patch.object(app_module, "db", mock_db):
+        importlib.reload(app_module)
+        result = app_module.update(999, title="X")
         assert result is None
         mock_db.session.commit.assert_not_called()
 
 
 def test_delete_existing_item_deletes_record(mock_db, mock_todo):
-    # Arrange
     mock_db.session.query.return_value.filter_by.return_value.first.return_value = mock_todo
-    with patch('app.db', mock_db):
-        from app import delete
-
-        # Act
-        delete(1)
-
-        # Assert
+    importlib.reload(app_module)
+    with patch.object(app_module, "db", mock_db):
+        importlib.reload(app_module)
+        app_module.delete(1)
         mock_db.session.delete.assert_called_once_with(mock_todo)
         mock_db.session.commit.assert_called_once()

@@ -5,7 +5,6 @@ from app import app, db, Todo
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
-    db.init_app(app)
     with app.app_context():
         db.drop_all()
         db.create_all()

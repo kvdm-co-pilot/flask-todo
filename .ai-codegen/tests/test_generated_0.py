@@ -22,7 +22,7 @@ def mock_todo():
     return todo
 
 def test_add_valid_input_creates_record(app_ctx, mock_db, mock_todo):
-    with patch.object(app, 'db', mock_db), patch.object(app, 'Todo', return_value=mock_todo):
+    with patch.object(app, 'db', mock_db), patch.object(app, 'Todo', MagicMock(return_value=mock_todo)):
         from app import add
         result = add("Test Task")
         mock_db.session.add.assert_called_once_with(mock_todo)

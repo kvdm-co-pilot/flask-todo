@@ -9,7 +9,9 @@ def app_ctx():
 
 @pytest.fixture
 def mock_db():
-    return MagicMock()
+    mock = MagicMock()
+    mock.session = MagicMock()
+    return mock
 
 @pytest.fixture
 def mock_todo():

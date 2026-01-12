@@ -4,7 +4,7 @@ import app
 
 @pytest.fixture
 def app_ctx():
-    with app.app.app_context():
+    with app.app_context():
         yield
 
 @pytest.fixture

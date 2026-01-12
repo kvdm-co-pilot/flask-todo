@@ -15,7 +15,7 @@ def mock_todo():
     return todo
 
 def test_add_valid_input_creates_record(mock_db, mock_todo):
-    with patch('app.SQLAlchemy', return_value=mock_db), patch('app.Todo', return_value=mock_todo):
+    with patch('app.db', mock_db), patch('app.Todo', return_value=mock_todo):
         import app as app_module
         app_module = importlib.reload(app_module)
         from app import add
@@ -28,7 +28,7 @@ def test_add_valid_input_creates_record(mock_db, mock_todo):
         assert result is not None
 
 def test_add_invalid_input_raises_error(mock_db):
-    with patch('app.SQLAlchemy', return_value=mock_db):
+    with patch('app.db', mock_db):
         import app as app_module
         app_module = importlib.reload(app_module)
         from app import add
@@ -39,7 +39,7 @@ def test_add_invalid_input_raises_error(mock_db):
 
 def test_update_existing_item_updates_fields(mock_db, mock_todo):
     mock_db.session.query.return_value.filter_by.return_value.first.return_value = mock_todo
-    with patch('app.SQLAlchemy', return_value=mock_db):
+    with patch('app.db', mock_db):
         import app as app_module
         app_module = importlib.reload(app_module)
         from app import update
@@ -53,7 +53,7 @@ def test_update_existing_item_updates_fields(mock_db, mock_todo):
 
 def test_update_nonexistent_item_no_commit(mock_db):
     mock_db.session.query.return_value.filter_by.return_value.first.return_value = None
-    with patch('app.SQLAlchemy', return_value=mock_db):
+    with patch('app.db', mock_db):
         import app as app_module
         app_module = importlib.reload(app_module)
         from app import update
@@ -66,7 +66,7 @@ def test_update_nonexistent_item_no_commit(mock_db):
 
 def test_delete_existing_item_deletes_record(mock_db, mock_todo):
     mock_db.session.query.return_value.filter_by.return_value.first.return_value = mock_todo
-    with patch('app.SQLAlchemy', return_value=mock_db):
+    with patch('app.db', mock_db):
         import app as app_module
         app_module = importlib.reload(app_module)
         from app import delete

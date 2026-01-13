@@ -4,8 +4,10 @@ from unittest.mock import MagicMock, patch
 
 @pytest.fixture
 def app_context():
-    with app.app_context():
-        yield
+    ctx = app.app_context()
+    ctx.push()
+    yield
+    ctx.pop()
 
 @pytest.fixture
 def mock_db():
@@ -16,7 +18,6 @@ def mock_todo():
     todo = MagicMock()
     todo.id = 1
     todo.title = "Test Task"
-    todo.completed = False
     todo.complete = False
     return todo
 

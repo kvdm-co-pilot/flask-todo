@@ -24,6 +24,7 @@ def test_add_valid_input_creates_record(app_context, mock_db, mock_todo):
     with patch('app.db', mock_db), \
          patch('app.Todo', return_value=mock_todo), \
          patch('app.request') as mock_request:
+        mock_request.form = MagicMock()
         mock_request.form.get.return_value = "Test Task"
         from app import add
         result = add()
@@ -34,6 +35,7 @@ def test_add_valid_input_creates_record(app_context, mock_db, mock_todo):
 def test_add_invalid_input_raises_error(app_context, mock_db):
     with patch('app.db', mock_db), \
          patch('app.request') as mock_request:
+        mock_request.form = MagicMock()
         mock_request.form.get.return_value = None
         from app import add
         with pytest.raises(Exception):

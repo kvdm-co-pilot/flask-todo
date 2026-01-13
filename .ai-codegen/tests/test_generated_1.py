@@ -1,7 +1,6 @@
 import pytest
 from app import app, db, Todo
 
-# Map tests' expected attribute "completed" to model's "complete"
 Todo.completed = property(lambda self: self.complete, lambda self, val: setattr(self, "complete", val))
 
 @pytest.fixture
@@ -22,32 +21,40 @@ def test_home_loads_successfully_returns_200(client):
 def test_add_route_creates_todo_in_database(client):
     payload = {'title': 'Integration Task'}
     client.post('/add', data=payload)
-    todos = Todo.query.all()
-    assert len(todos) == 1
-    assert todos[0].title == 'Integration Task'
+    with app.app_context():
+        todos = Todo.query.all()
+        assert len(todos) == 1
+        assert todos[0].title == 'Integration Task'
 
 
 def test_update_route_updates_todo(client):
-    todo = Todo(title='Before', completed=False)
-    db.session.add(todo)
-    db.session.commit()
-    client.post(f'/update/{todo.id}', data={'title': 'After', 'completed': 'on'})
-    updated = Todo.query.get(todo.id)
-    assert updated.title == 'After'
-    assert updated.completed is True
+    with app.app_context():
+        todo = Todo(title='Before', completed=False)
+        db.session.add(todo)
+        db.session.commit()
+        todo_id = todo.id
+    client.post(f'/update/{todo_id}', data={'title': 'After', 'completed': 'on'})
+    with app.app_context():
+        updated = Todo.query.get(todo_id)
+        assert updated.title == 'After'
+        assert updated.completed is True
 
 
 def test_delete_route_removes_item(client):
-    todo = Todo(title='Delete Me')
-    db.session.add(todo)
-    db.session.commit()
-    client.get(f'/delete/{todo.id}')
-    remaining = Todo.query.get(todo.id)
-    assert remaining is None
+    with app.app_context():
+        todo = Todo(title='Delete Me')
+        db.session.add(todo)
+        db.session.commit()
+        todo_id = todo.id
+    client.get(f'/delete/{todo_id}')
+    with app.app_context():
+        remaining = Todo.query.get(todo_id)
+        assert remaining is None
 
 
 def test_home_shows_created_todos(client):
-    db.session.add(Todo(title='Visible'))
-    db.session.commit()
+    with app.app_context():
+        db.session.add(Todo(title='Visible'))
+        db.session.commit()
     res = client.get('/')
     assert b'Visible' in res.data

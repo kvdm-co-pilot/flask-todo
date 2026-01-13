@@ -28,17 +28,17 @@ def test_add_route_creates_todo_in_database(client):
 
 def test_update_route_updates_todo(client):
     with app.app_context():
-        todo = Todo(title='Before', completed=False)
+        todo = Todo(title='Before', complete=False)
         db.session.add(todo)
         db.session.commit()
         todo_id = todo.id
 
-    client.post(f'/update/{todo_id}', data={'title': 'After', 'completed': 'on'})
+    client.post(f'/update/{todo_id}', data={'title': 'After', 'complete': 'on'})
 
     with app.app_context():
         updated = Todo.query.get(todo_id)
         assert updated.title == 'After'
-        assert updated.completed is True
+        assert updated.complete is True
 
 
 def test_delete_route_removes_item(client):

@@ -31,14 +31,14 @@ def test_toggle_complete_true_to_false():
     todo.complete = not todo.complete
     assert todo.complete is False
 
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_home_with_three_items(mock_query, client):
     mock_query.all.return_value = [app.Todo(title='a'), app.Todo(title='b'), app.Todo(title='c')]
     response = client.get('/')
     mock_query.all.assert_called_once()
     assert response.status_code == 200
 
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_home_with_no_items(mock_query, client):
     mock_query.all.return_value = []
     response = client.get('/')
@@ -46,7 +46,7 @@ def test_home_with_no_items(mock_query, client):
     assert response.status_code == 200
 
 @patch('app.db.session.commit')
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_update_toggle_false_to_true(mock_query, mock_commit, client):
     todo = app.Todo(title='x', complete=False)
     mock_query.filter_by.return_value.first.return_value = todo
@@ -56,7 +56,7 @@ def test_update_toggle_false_to_true(mock_query, mock_commit, client):
     assert response.status_code == 302
 
 @patch('app.db.session.commit')
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_update_toggle_true_to_false(mock_query, mock_commit, client):
     todo = app.Todo(title='x', complete=True)
     mock_query.filter_by.return_value.first.return_value = todo
@@ -65,7 +65,7 @@ def test_update_toggle_true_to_false(mock_query, mock_commit, client):
     mock_commit.assert_called_once()
     assert response.status_code == 302
 
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_update_non_existing_raises(mock_query, client):
     mock_query.filter_by.return_value.first.return_value = None
     with pytest.raises(Exception):
@@ -97,7 +97,7 @@ def test_add_missing_title_creates_none_title(mock_commit, mock_add, client):
 
 @patch('app.db.session.delete')
 @patch('app.db.session.commit')
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_delete_existing(mock_query, mock_commit, mock_delete, client):
     todo = app.Todo(title='x')
     mock_query.filter_by.return_value.first.return_value = todo
@@ -107,7 +107,7 @@ def test_delete_existing(mock_query, mock_commit, mock_delete, client):
     assert response.status_code == 302
 
 @patch('app.db.session.delete')
-@patch('app.Todo.query')
+@patch('app.Todo.query', autospec=True)
 def test_delete_non_existing_raises(mock_query, mock_delete, client):
     mock_query.filter_by.return_value.first.return_value = None
     with pytest.raises(Exception):

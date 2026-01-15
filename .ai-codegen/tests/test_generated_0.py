@@ -5,8 +5,9 @@ import app
 @pytest.fixture
 def client():
     app.app.config['TESTING'] = True
-    with app.app.test_client() as c:
-        yield c
+    with app.app.app_context():
+        with app.app.test_client() as c:
+            yield c
 
 def test_create_todo_valid_title_expected_fields():
     title = 'Buy milk'
